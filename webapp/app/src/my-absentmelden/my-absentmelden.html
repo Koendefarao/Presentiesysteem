@@ -14,15 +14,36 @@
             :root {
                 --paper-input-container-focus-color: #1a9fd9;
             }
+
             :host {
                 display: block;
             }
+
+            .green {
+                background: forestgreen;
+                color: white;
+            }
+
+            .my-input {
+                margin: 16px 0;
+            }
         </style>
-        <h1>Hellow orld</h1>
+        <div class="my-input">
+            <paper-input label="Datum absent" autofocus type="date" value="{{absent_datum}}"></paper-input>
+        </div>
+        <div class="my-input">
+            <paper-checkbox checked>Onbepaald</paper-checkbox>
+        </div>
+        <div class="my-input">
+            <paper-input label="Datum present" autofocus type="date" value="{{present_datum}}"></paper-input>
+        </div>
+        <div class="my-input">
+            <paper-button class="green" raised on-click="submit">Verzenden</paper-button>
+        </div>
     </template>
 
     <script>
-        (function() {
+        (function () {
             'use strict';
 
             /* _xxxx private              : geen external data binding      - geen notify
@@ -35,7 +56,7 @@
 
                 properties: {
                     _c_studenten: {
-                        type: Array,           /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
+                        type: Array, /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
                          array is constant groepnr is changable */
                     },
                     c_rol: {
@@ -45,17 +66,52 @@
                         type: String,
                     },
                     c_visible: {
-                        type: Boolean,                                      /* true when element is the active visible item */
+                        type: Boolean, /* true when element is the active visible item */
                         value: false,
-                        observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                        observer: '_initializing', /* wordt ook aangeroepen bijwisseling van true naar false.
                          regel in de functie dat er niets gebeurd
                          als c_visible false is */
                     },
+                    absent_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    present_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    undefined_date: {
+                        type: Boolean,
+                        value: false,
+                    },
                 },
 
+                ready: function () {
+                    var eenDatumObject = new Date();
+                    this.absent_datum = this.date_to_standaard_string(eenDatumObject);
+                },
 
+                // convert a JSDate-object to standaard format (=YYYY-MM-DD)
+                date_to_standaard_string: function (p_JSDate) {
+                    var lJaar = p_JSDate.getFullYear();
+                    var lMaand = p_JSDate.getMonth() + 1;
+                    var lDag = p_JSDate.getDate();
+
+                    var lMaandStr = lMaand.toString();
+                    if (lMaandStr.length == 1) {
+                        lMaandStr = "0" + lMaandStr;
+                    }
+                    var lDagStr = lDag.toString();
+                    if (lDagStr.length == 1) {
+                        lDagStr = "0" + lDagStr;
+                    }
+                    var lString =
+                        lJaar.toString() + "-" +
+                        lMaandStr + "-" +
+                        lDagStr;
+                    return lString;
+                },
             });
-
         })();
     </script>
 </dom-module>
