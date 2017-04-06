@@ -161,6 +161,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <!-- beschikbaar voor docent---------------------------------------------------- -->
 
                     <!-- beschikbaar voor student--------------------------------------------------- -->
+                    <a name="student_absentmelden" href$="[[_c_baseURL]]student/absentmelden"
+                       verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
+                        <iron-icon icon="social:group"></iron-icon>
+                        <span>Absent melden</span>
+                    </a>
+
+                    <a name="student_presentmelden" href$="[[_c_baseURL]]student/presentmelden"
+                       verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
+                        <iron-icon icon="social:group"></iron-icon>
+                        <span>Present melden</span>
+                    </a>
+
                     <a name="student_medestudenten" href$="[[_c_baseURL]]student/medestudenten"
                        verborgen$="[[!_are_strings_equal(_rol, 'student')]]">
                         <iron-icon icon="social:group"></iron-icon>
@@ -238,6 +250,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <!-- sections voor docent -->
 
                 <!-- sections voor student -->
+                <section name="student_presentmelden"
+                         title="Present melden"
+                         element$="my-presentmelden">
+                    <paper-material elevation="1">
+                        <!--
+                            c_visible="true" als deze section geselecteerd is.
+                            LET OP: boolean values moeten als string doorgegeven worden,
+                                    vandaar de quotes rondom de function aanroep.
+                                    De aanwezige literal waarde wordt met enkele quotes doorgegeven
+                        -->
+                        <my-presentmelden
+                                c_visible="[[_are_strings_equal(_ar_page, 'student_presentmelden')]]"
+                                c_rol="[[_rol]]"
+                                c_username="[[_username]]">
+                        </my-presentmelden>
+                    </paper-material>
+                </section>
+
+                <section name="student_absentmelden"
+                         title="Absent melden"
+                         element$="my-absentmelden">
+                    <paper-material elevation="1">
+                        <!--
+                            c_visible="true" als deze section geselecteerd is.
+                            LET OP: boolean values moeten als string doorgegeven worden,
+                                    vandaar de quotes rondom de function aanroep.
+                                    De aanwezige literal waarde wordt met enkele quotes doorgegeven
+                        -->
+                        <my-absentmelden
+                                c_visible="[[_are_strings_equal(_ar_page, 'student_absentmelden')]]"
+                                c_rol="[[_rol]]"
+                                c_username="[[_username]]">
+                        </my-absentmelden>
+                    </paper-material>
+                </section>
+
                 <section name="student_medestudenten"
                          title="OVERZICHT MEDESTUDENTEN"
                          element$="my-medestudenten">
