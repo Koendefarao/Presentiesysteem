@@ -60,6 +60,12 @@ public class Student extends Persoon {
         absenties.add(absentie);
     }
 
+    public void setPresent(Date date) throws Exception {
+        if (huidigeAbsentie == null) throw new Exception("Student is al present!");
+        huidigeAbsentie.setEindDatum(date);
+        isAbsent(); // Update presentie want het kan oon voor later gezet zijn
+    }
+
     public ArrayList<AbsentieOpname> getAbsenties() {
         return absenties;
     }

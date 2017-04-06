@@ -7,8 +7,8 @@ import java.util.Date;
  */
 public class AbsentieOpname {
 
-    protected Date startDatum;
-    protected Date eindDatum;
+    private Date startDatum;
+    private Date eindDatum;
 
 
     /**

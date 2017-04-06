@@ -1,0 +1,8 @@
+http://localhost:8888/absent_melden
+
+{
+	"username":"robin.aalten@student.hu.nl",
+	"absent_datum":1496605560000,
+	"present_datum":1496605570000,
+	"undefined_date":false
+}
