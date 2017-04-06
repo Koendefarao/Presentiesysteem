@@ -6,8 +6,6 @@ import model.PrIS;
 import server.JSONFileServer;
 
 public class Application {
-
-    //test123
     /**
      * Deze klasse is het startpunt voor de applicatie. Hierin maak je een server
      * op een bepaalde poort (bijv. 8888). Daarna is er een PrIS-object gemaakt. Dit
@@ -34,6 +32,7 @@ public class Application {
         SysteemDatumController systeemDatumController = new SysteemDatumController(infoSysteem);
         LoginController loginController = new LoginController(infoSysteem);
         MedestudentenController medestudentenController = new MedestudentenController(infoSysteem);
+        PresentieController presentieController= new PresentieController(infoSysteem);
 
         server.registerHandler("/systeemdatum/lesinfo", systeemDatumController);
 
@@ -41,6 +40,8 @@ public class Application {
 
         server.registerHandler("/student/medestudenten/ophalen", medestudentenController);
         server.registerHandler("/student/medestudenten/opslaan", medestudentenController);
+
+        server.registerHandler("/absent_melden_leerling", presentieController);
 
         server.start();
     }

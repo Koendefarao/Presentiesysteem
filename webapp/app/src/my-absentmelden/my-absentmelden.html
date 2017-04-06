@@ -1,0 +1,61 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="my-absentmelden">
+    <template>
+        <style>
+            :root {
+                --paper-input-container-focus-color: #1a9fd9;
+            }
+            :host {
+                display: block;
+            }
+        </style>
+        <h1>Hellow orld</h1>
+    </template>
+
+    <script>
+        (function() {
+            'use strict';
+
+            /* _xxxx private              : geen external data binding      - geen notify
+             _c_xx private constant     : geen external binding, constant - geen notify
+             c_xx  public constant      : one way external databinding [[c_xx]] - geen notify nodig
+             xxxx  public               : two way external databinding {{xxxx}} - notify nodig
+             */
+            Polymer({
+                is: 'my-absentmelden',
+
+                properties: {
+                    _c_studenten: {
+                        type: Array,           /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
+                         array is constant groepnr is changable */
+                    },
+                    c_rol: {
+                        type: String,
+                    },
+                    c_username: {
+                        type: String,
+                    },
+                    c_visible: {
+                        type: Boolean,                                      /* true when element is the active visible item */
+                        value: false,
+                        observer: '_initializing',                          /* wordt ook aangeroepen bijwisseling van true naar false.
+                         regel in de functie dat er niets gebeurd
+                         als c_visible false is */
+                    },
+                },
+
+
+            });
+
+        })();
+    </script>
+</dom-module>
