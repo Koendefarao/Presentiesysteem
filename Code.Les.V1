@@ -1,0 +1,37 @@
+package project.klassen;
+
+import java.time.LocalDate;
+
+public class Les {
+	private LocalDate begintijd;
+	private LocalDate eindtijd;
+	private LocalDate dag;
+	
+	public Les(LocalDate bgnTd, LocalDate endTd, LocalDate dg){
+		begintijd=bgnTd;
+		eindtijd=endTd;
+		dag=dg;
+	}
+	public LocalDate getBeginTijd(){
+		return begintijd;
+	}
+	public LocalDate getEindTijd(){
+		return eindtijd;
+	}
+	public LocalDate getDag(){
+		return dag;
+	}
+	public void setBeginTijd(LocalDate nwBgTd){
+		begintijd=nwBgTd;
+	}
+	public void setEindTijd(LocalDate nwEdTd){
+		eindtijd=nwEdTd;
+	}
+	public void setDag(LocalDate nwDg){
+		dag=nwDg;
+	}
+	public String toString(){
+		String s= "De begintijd is "+ begintijd+" de eindtijd is "+ eindtijd+".Deze les vindt plaats op "+ dag;
+		return s;
+	}
+}
