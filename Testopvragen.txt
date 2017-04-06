@@ -1,8 +1,14 @@
 http://localhost:8888/absent_melden
 
 {
-	"username":"robin.aalten@student.hu.nl",
-	"absent_datum":1496605560000,
-	"present_datum":1496605570000,
-	"undefined_date":false
-}
+ 	"username":"robin.aalten@student.hu.nl",
+ 	"absent_datum":1496605560000,
+ 	"present_datum":1496605570000,
+ 	"undefined_date":false
+ }
+
+ http://localhost:8888/present_melden
+ {
+ 	"username":"robin.aalten@student.hu.nl",
+ 	"present_datum":0
+ }
