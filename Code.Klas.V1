@@ -1,0 +1,24 @@
+package project.klassen;
+
+import java.util.ArrayList;
+
+public class Klas {
+	private String klasnaam;
+	private ArrayList lessen= new ArrayList();
+	
+	public Klas(String klNm, ArrayList lssn){
+		klasnaam= klNm;
+		lessen=lssn;
+		
+	}
+	public String getKlas(){
+		return klasnaam;
+	}
+	public void setKlas(String nwKlNm){
+		klasnaam=nwKlNm;
+	}
+	public String toString(){
+		String s= "De klasnaam is "+klasnaam;
+		return s;
+	}
+}
