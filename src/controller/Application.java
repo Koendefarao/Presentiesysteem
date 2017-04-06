@@ -6,8 +6,6 @@ import model.PrIS;
 import server.JSONFileServer;
 
 public class Application {
-
-    //test123
     /**
      * Deze klasse is het startpunt voor de applicatie. Hierin maak je een server
      * op een bepaalde poort (bijv. 8888). Daarna is er een PrIS-object gemaakt. Dit
