@@ -32,10 +32,10 @@
             <paper-input label="Datum absent" autofocus type="date" value="{{absent_datum}}"></paper-input>
         </div>
         <div class="my-input">
-            <paper-checkbox checked>Onbepaald</paper-checkbox>
+            <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate">Onbepaald</paper-checkbox>
         </div>
         <div class="my-input">
-            <paper-input label="Datum present" autofocus type="date" value="{{present_datum}}"></paper-input>
+            <paper-input label="Datum present" autofocus type="date" value="{{present_datum}}" id="present_datum"></paper-input>
         </div>
         <div class="my-input">
             <paper-button class="green" raised on-click="submit">Verzenden</paper-button>
@@ -82,8 +82,22 @@
                     },
                     undefined_date: {
                         type: Boolean,
-                        value: false,
+                        value: true,
                     },
+                },
+
+                _initializing : function() {
+                    if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
+                        if (this.c_rol=="student") {                        // voor studenten
+                            //run
+                        } else {                                            // na handmatige url wijziging zonder login
+
+                        }
+                    }
+                },
+
+                changeUndefinedDate: function (event) {
+                    this.$.present_datum.disabled = event.target.checked;
                 },
 
                 ready: function () {
@@ -111,6 +125,12 @@
                         lDagStr;
                     return lString;
                 },
+
+
+
+                submit: function () {
+                    console.log();
+                }
             });
         })();
     </script>
