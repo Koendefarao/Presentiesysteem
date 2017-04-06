@@ -29,7 +29,7 @@
             }
         </style>
         <div class="my-input">
-            <paper-input label="Selecteer datum" autofocus type="date" value="{{presentdatum}}"></paper-input>
+            <paper-input label="Selecteer datum" autofocus type="datetime-local" value="{{present_datum}}"></paper-input>
         </div>
         <div class="my-input">
             <paper-button class="weed" raised on-click="submit">Volgende</paper-button>
@@ -67,7 +67,7 @@
                          als c_visible false is */
                     },
 
-                    presentdatum: {
+                    present_datum: {
                         type: Date, /* dit is een string in YYYY-MM-DD formaat
                          ook als de regional settings anders aangeven*/
                         notify: true,
@@ -75,30 +75,9 @@
 
                 },
                 ready: function () {
-                    var eenDatumObject = new Date(); // is vandaag
-                    this.presentdatum = this.date_to_standaard_string(eenDatumObject);
+                    this.present_datum = new Date().toISOString().substring(0,16);
                 },
 
-                // convert a JSDate-object to standaard format (=YYYY-MM-DD)
-                date_to_standaard_string: function (p_JSDate) {
-                    var lJaar = p_JSDate.getFullYear();
-                    var lMaand = p_JSDate.getMonth() + 1;
-                    var lDag = p_JSDate.getDate();
-
-                    var lMaandStr = lMaand.toString();
-                    if (lMaandStr.length == 1) {
-                        lMaandStr = "0" + lMaandStr;
-                    }
-                    var lDagStr = lDag.toString();
-                    if (lDagStr.length == 1) {
-                        lDagStr = "0" + lDagStr;
-                    }
-                    var lString =
-                        lJaar.toString() + "-" +
-                        lMaandStr + "-" +
-                        lDagStr;
-                    return lString;
-                },
 
                 submit: function (){
 

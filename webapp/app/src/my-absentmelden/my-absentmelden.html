@@ -29,13 +29,13 @@
             }
         </style>
         <div class="my-input">
-            <paper-input label="Datum absent" autofocus type="date" value="{{absent_datum}}"></paper-input>
+            <paper-input label="Datum absent" autofocus type="datetime-local" value="{{absent_datum}}"></paper-input>
         </div>
         <div class="my-input">
             <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate">Onbepaald</paper-checkbox>
         </div>
         <div class="my-input">
-            <paper-input label="Datum present" autofocus type="date" value="{{present_datum}}" id="present_datum"></paper-input>
+            <paper-input label="Datum present" autofocus type="datetime-local" value="{{present_datum}}" id="present_datum"></paper-input>
         </div>
         <div class="my-input">
             <paper-button class="green" raised on-click="submit">Verzenden</paper-button>
@@ -101,32 +101,8 @@
                 },
 
                 ready: function () {
-                    var eenDatumObject = new Date();
-                    this.absent_datum = this.date_to_standaard_string(eenDatumObject);
+                    this.absent_datum = new Date().toISOString().substring(0,16);
                 },
-
-                // convert a JSDate-object to standaard format (=YYYY-MM-DD)
-                date_to_standaard_string: function (p_JSDate) {
-                    var lJaar = p_JSDate.getFullYear();
-                    var lMaand = p_JSDate.getMonth() + 1;
-                    var lDag = p_JSDate.getDate();
-
-                    var lMaandStr = lMaand.toString();
-                    if (lMaandStr.length == 1) {
-                        lMaandStr = "0" + lMaandStr;
-                    }
-                    var lDagStr = lDag.toString();
-                    if (lDagStr.length == 1) {
-                        lDagStr = "0" + lDagStr;
-                    }
-                    var lString =
-                        lJaar.toString() + "-" +
-                        lMaandStr + "-" +
-                        lDagStr;
-                    return lString;
-                },
-
-
 
                 submit: function () {
                     console.log();
