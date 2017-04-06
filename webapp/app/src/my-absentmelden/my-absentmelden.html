@@ -28,18 +28,35 @@
                 margin: 16px 0;
             }
         </style>
+
+        <paper-toast
+                id="toast_message"
+                duration="0"
+                text="{{error_toast}}">
+            <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
+        </paper-toast>
+
         <div class="my-input">
-            <paper-input label="Datum absent" autofocus type="datetime-local" value="{{absent_datum}}"></paper-input>
+            <paper-input label="Datum absent" autofocus type="datetime-local" value="{{absent_datum}}" id="absent_datum"></paper-input>
         </div>
         <div class="my-input">
-            <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate">Onbepaald</paper-checkbox>
+            <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate" id="undefined_date">Onbepaald</paper-checkbox>
         </div>
         <div class="my-input">
-            <paper-input label="Datum present" autofocus type="datetime-local" value="{{present_datum}}" id="present_datum"></paper-input>
+            <paper-input label="Datum present" autofocus type="datetime-local" value="{{present_datum}}"
+                         id="present_datum"></paper-input>
         </div>
         <div class="my-input">
             <paper-button class="green" raised on-click="submit">Verzenden</paper-button>
         </div>
+
+        <iron-ajax
+                id="ajax_absent_melden"
+                method="POST"
+                url="/absent_melden"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
     </template>
 
     <script>
@@ -84,11 +101,14 @@
                         type: Boolean,
                         value: true,
                     },
+                    error_toast: {
+                        type: String,
+                    },
                 },
 
-                _initializing : function() {
+                _initializing: function () {
                     if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
-                        if (this.c_rol=="student") {                        // voor studenten
+                        if (this.c_rol == "student") {                        // voor studenten
                             //run
                         } else {                                            // na handmatige url wijziging zonder login
 
@@ -101,12 +121,34 @@
                 },
 
                 ready: function () {
-                    this.absent_datum = new Date().toISOString().substring(0,16);
+                    this.absent_datum = new Date().toISOString().substring(0, 16);
                 },
 
                 submit: function () {
-                    console.log();
-                }
+                    this.$.ajax_absent_melden.contentType = "application/json";
+                    this.$.ajax_absent_melden.body = {
+                        "username": this.c_username,
+                        "absent_datum": Date.parse(this.$.absent_datum.value),
+                        "present_datum": Date.parse(this.$.present_datum.value),
+                        "undefined_date": this.$.undefined_date.checked
+                    };
+                    this.$.ajax_absent_melden.generateRequest();
+                },
+
+                _response_handler: function (request) {
+                    if(request.detail.response.success == false) {
+                        this.error_toast = request.detail.response.message;
+                    } else {
+                        this.error_toast = "Je bent absent gemeld!";
+                    }
+                    var lToast = this.$.toast_message;
+                    lToast.toggle();
+                },
+
+                _toast_clicked: function (e) {
+                    var lToast = this.$.toast_message;
+                    lToast.toggle();
+                },
             });
         })();
     </script>

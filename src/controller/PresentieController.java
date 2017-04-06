@@ -43,7 +43,7 @@ public class PresentieController implements Handler {
         String username = input.getString("username");
         Date absentVan = MyUtils.getDateFromMillis(input.getJsonNumber("absent_datum").longValue());
         Date absentTot = null;
-        if (input.getBoolean("undefined_date")) {
+        if (!input.getBoolean("undefined_date")) {
             absentTot = MyUtils.getDateFromMillis(input.getJsonNumber("present_datum").longValue());
         }
 

@@ -28,12 +28,28 @@
                 margin : 16px 0;
             }
         </style>
+
+        <paper-toast
+                id="toast_message"
+                duration="0"
+                text="{{error_toast}}">
+            <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
+        </paper-toast>
+
         <div class="my-input">
-            <paper-input label="Selecteer datum" autofocus type="datetime-local" value="{{present_datum}}"></paper-input>
+            <paper-input label="Selecteer datum" autofocus type="datetime-local" value="{{present_datum}}" id="present_datum"></paper-input>
         </div>
         <div class="my-input">
             <paper-button class="weed" raised on-click="submit">Volgende</paper-button>
         </div>
+
+        <iron-ajax
+                id="ajax_present_melden"
+                method="POST"
+                url="/present_melden"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
     </template>
 
     <script>
@@ -80,10 +96,28 @@
 
 
                 submit: function (){
+                    this.$.ajax_present_melden.contentType = "application/json";
+                    this.$.ajax_present_melden.body = {
+                        "username": this.c_username,
+                        "present_datum": Date.parse(this.$.present_datum.value)
+                    };
+                    this.$.ajax_present_melden.generateRequest();
+                },
 
-                }
+                _response_handler: function (request) {
+                    if(request.detail.response.success == false) {
+                        this.error_toast = request.detail.response.message;
+                    } else {
+                        this.error_toast = "Je bent present gemeld!";
+                    }
+                    var lToast = this.$.toast_message;
+                    lToast.toggle();
+                },
 
-
+                _toast_clicked: function (e) {
+                    var lToast = this.$.toast_message;
+                    lToast.toggle();
+                },
             });
 
         })();
