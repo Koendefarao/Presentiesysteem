@@ -77,6 +77,12 @@
                 </div>
             </div>
         </div>
+        <div style="margin-top: 32px">
+            <h2>Mijn absenties</h2>
+            <div id="absenties">
+
+            </div>
+        </div>
 
 
         <iron-ajax
@@ -92,6 +98,13 @@
                 url="/present_melden"
                 handle-as="json"
                 on-response="_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_get_absenties_student"
+                method="POST"
+                url="/get_absenties_student"
+                handle-as="json"
+                on-response="_absentie_response_handler">
         </iron-ajax>
     </template>
 
@@ -147,12 +160,8 @@
                 },
 
                 _initializing: function () {
-                    if (this.c_visible) {                                 // zodra zichtbaar geworden moet er wat worden gedaan
-                        if (this.c_rol == "student") {                        // voor studenten
-                            //run
-                        } else {                                            // na handmatige url wijziging zonder login
-
-                        }
+                    if (this.c_visible) {
+                        this.updateAbsentieLijst();
                     }
                 },
 
@@ -185,9 +194,37 @@
                     this.$.ajax_present_melden.generateRequest();
                 },
 
+                updateAbsentieLijst: function () {
+                    this.$.ajax_get_absenties_student.contentType = "application/json";
+                    this.$.ajax_get_absenties_student.body = {
+                        "username": this.c_username,
+                    };
+                    this.$.ajax_get_absenties_student.generateRequest();
+                },
+
+                _absentie_response_handler: function (request) {
+                    console.log("resp");
+                    var myParent = Polymer.dom(this.$.absenties);
+                    myParent.innerHTML = "";
+                    if(request.detail.response.success == true) return; //todo catch error
+
+                    for (var j = 0; j < request.detail.response.length; j++) {
+                        var absentie = request.detail.response[j];
+
+                        console.log(absentie);
+
+                        var absentieElement = document.createElement('absentie-entity');
+                        absentieElement.setAttribute('c_username', this.c_username);
+                        absentieElement.setAttribute('absent_datum', new Date(absentie.start_datum).toISOString().substring(0, 16));
+                        absentieElement.setAttribute('present_datum', (absentie.eind_datum != null) ?
+                            new Date(absentie.eind_datum).toISOString().substring(0, 16) : 'Onbepaald');
+                        myParent.appendChild(absentieElement);
+                    }
+                },
+
                 _response_handler: function (request) {
                     if (request.detail.response.success === true) {
-
+                        this.updateAbsentieLijst();
                     }
                     this.error_toast = request.detail.response.message;
                     var lToast = this.$.toast_message;

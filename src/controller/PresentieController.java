@@ -8,6 +8,8 @@ import model.persoon.Student;
 import server.Conversation;
 import server.Handler;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import java.util.Date;
 
@@ -26,11 +28,11 @@ public class PresentieController implements Handler {
     public void handle(Conversation conversation) {
         try {
             if (conversation.getRequestedURI().startsWith("/absent_melden")) {
-
                 absentMelden(conversation);
-
             } else if (conversation.getRequestedURI().startsWith("/present_melden")) {
                 presentMelden(conversation);
+            } else if (conversation.getRequestedURI().startsWith("/get_absenties_student")) {
+                getAbsentiesStudent(conversation);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +68,20 @@ public class PresentieController implements Handler {
         student.setPresent(presentDate);
 
         conversation.sendJSONMessage(JsonUtils.getSuccessMessage("Je bent present gemeld."));
+    }
+
+    private void getAbsentiesStudent(Conversation conversation) throws Exception {
+        JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
+        String username = input.getString("username");
+
+        Student student = informatieSysteem.getStudent(username);
+        if (student == null) throw new Exception("Student niet gevonden!");
+
+        JsonArrayBuilder ret = Json.createArrayBuilder();
+        for (AbsentieOpname opname: student.getAbsenties()) {
+            ret.add(opname.serialize());
+        }
+        conversation.sendJSONMessage(ret.build().toString());
     }
 
 

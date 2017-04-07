@@ -2,6 +2,7 @@
 package model.persoon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 public class Student extends Persoon {
@@ -78,6 +79,7 @@ public class Student extends Persoon {
     }
 
     public ArrayList<AbsentieOpname> getAbsenties() {
+        Collections.sort(absenties);
         return absenties;
     }
 }

@@ -43,6 +43,7 @@ public class Application {
 
         server.registerHandler("/absent_melden", presentieController);
         server.registerHandler("/present_melden", presentieController);
+        server.registerHandler("/get_absenties_student", presentieController);
 
         server.start();
     }
