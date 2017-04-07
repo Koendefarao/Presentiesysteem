@@ -13,6 +13,7 @@ public class AbsentieOpname {
 
     /**
      * Voor onbepaalde tijd
+     *
      * @param startDatum
      */
     public AbsentieOpname(Date startDatum) {
@@ -46,4 +47,16 @@ public class AbsentieOpname {
     public boolean isOnbepaald() {
         return eindDatum == null;
     }
+
+    public boolean isDateWithin(Date date) {
+        return date != null && (eindDatum == null || eindDatum.after(date)) && startDatum.before(date);
+    }
+
+    public void merge(AbsentieOpname absentieOpname) {
+        if (absentieOpname.getStartDatum().before(startDatum)) startDatum = absentieOpname.getStartDatum();
+        if (absentieOpname.getEindDatum() == null || absentieOpname.getEindDatum().after(eindDatum))
+            eindDatum = absentieOpname.getEindDatum();
+    }
+
+
 }

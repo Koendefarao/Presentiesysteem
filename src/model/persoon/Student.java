@@ -9,7 +9,6 @@ public class Student extends Persoon {
     private int studentNummer;
     private String groepId;
     protected ArrayList<AbsentieOpname> absenties = new ArrayList<>();
-    protected AbsentieOpname huidigeAbsentie;
 
     public Student(
             String pVoornaam,
@@ -45,25 +44,37 @@ public class Student extends Persoon {
         this.studentNummer = pStudentNummer;
     }
 
-    public boolean isAbsent() {
-        if(huidigeAbsentie == null) return false;
-        if(huidigeAbsentie.getEindDatum().before(new Date())) {
-            huidigeAbsentie = null;
-            return false;
+    public AbsentieOpname getCurrentAbsentie() {
+        Date currentDate = new Date();
+        return getAbsentieByDate(currentDate);
+    }
+
+    private AbsentieOpname getAbsentieByDate(Date date) {
+        for (AbsentieOpname absentie : absenties) {
+            if (absentie.isDateWithin(date)) return absentie;
         }
-        return true;
+        return null;
+    }
+
+    public boolean isAbsent() {
+        return getCurrentAbsentie() != null;
     }
 
     public void setAbsent(AbsentieOpname absentie) throws Exception {
-        if(huidigeAbsentie != null) throw new Exception("Student is al absent!");
-        huidigeAbsentie = absentie;
+        for (AbsentieOpname abs : absenties) {
+            if (abs.isDateWithin(absentie.getStartDatum())
+                    || abs.isDateWithin(absentie.getEindDatum())) {
+                abs.merge(absentie);
+                return;
+            }
+        }
         absenties.add(absentie);
     }
 
     public void setPresent(Date date) throws Exception {
-        if (huidigeAbsentie == null) throw new Exception("Student is al present!");
-        huidigeAbsentie.setEindDatum(date);
-        isAbsent(); // Update presentie want het kan oon voor later gezet zijn
+        AbsentieOpname current = getAbsentieByDate(date);
+        if (current == null) throw new Exception("Student is dan al present!");
+        current.setEindDatum(date);
     }
 
     public ArrayList<AbsentieOpname> getAbsenties() {
