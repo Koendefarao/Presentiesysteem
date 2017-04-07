@@ -1,7 +1,10 @@
 //checked
 package model.persoon;
 
+import model.PrIS;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
@@ -81,5 +84,40 @@ public class Student extends Persoon {
     public ArrayList<AbsentieOpname> getAbsenties() {
         Collections.sort(absenties);
         return absenties;
+    }
+
+    public ArrayList<Les> getGemisteLessen(PrIS database, Date from, Date till) {
+        ArrayList<Les> ret = new ArrayList<>();
+        ArrayList<AbsentieOpname> toenAbsenties = new ArrayList<>();
+        for(AbsentieOpname opname : absenties) {
+            if((opname.getStartDatum().after(from) || opname.getStartDatum().equals(from)) && opname.getStartDatum().before(till))
+                toenAbsenties.add(opname);
+        }
+        System.out.println("test1");
+        if(toenAbsenties.isEmpty()) return ret;
+
+        //Voor overzicht he
+        System.out.println("test2");
+        ArrayList<WeekelijkseLes> lessen = database.getMyLessen(getGebruikersnaam());
+        for(AbsentieOpname opname : toenAbsenties) {
+            Calendar startAbs = Calendar.getInstance();
+            startAbs.setTime(opname.getStartDatum());
+
+            Calendar eindAbs = Calendar.getInstance();
+            if(opname.getEindDatum() == null)
+                eindAbs.setTime(new Date());
+            else
+                eindAbs.setTime(opname.getEindDatum());
+
+            for(WeekelijkseLes les : lessen) {
+                Calendar startAbsTemp = (Calendar) startAbs.clone();
+                while (les.getNextStartFrom(startAbsTemp).before(eindAbs)) {
+                    ret.add(new Les(les.getNextStartFrom(startAbsTemp), les.getNextEindFrom(startAbsTemp), les));
+                    startAbsTemp = (Calendar) startAbsTemp.clone();
+                    startAbsTemp.add(Calendar.DAY_OF_WEEK, 7);
+                }
+            }
+        }
+        return ret;
     }
 }
