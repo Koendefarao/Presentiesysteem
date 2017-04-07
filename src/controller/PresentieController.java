@@ -52,7 +52,7 @@ public class PresentieController implements Handler {
 
         student.setAbsent(new AbsentieOpname(absentVan, absentTot));
 
-        conversation.sendJSONMessage(JsonUtils.getSuccessMessage());
+        conversation.sendJSONMessage(JsonUtils.getSuccessMessage("Je bent absent gemeld."));
     }
 
     private void presentMelden(Conversation conversation) throws Exception {
@@ -65,7 +65,7 @@ public class PresentieController implements Handler {
 
         student.setPresent(presentDate);
 
-        conversation.sendJSONMessage(JsonUtils.getSuccessMessage());
+        conversation.sendJSONMessage(JsonUtils.getSuccessMessage("Je bent present gemeld."));
     }
 
 

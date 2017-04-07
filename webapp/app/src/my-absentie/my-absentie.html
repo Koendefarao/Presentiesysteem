@@ -8,7 +8,7 @@
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
-<dom-module id="my-absentmelden">
+<dom-module id="my-absentie">
     <template>
         <style>
             :root {
@@ -27,6 +27,17 @@
             .my-input {
                 margin: 16px 0;
             }
+
+            .half-block {
+                width: 50%;
+                float: left;
+                padding-right: 16px;
+                box-sizing: border-box;
+            }
+
+            .block-row {
+                overflow: hidden;
+            }
         </style>
 
         <paper-toast
@@ -36,24 +47,49 @@
             <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
         </paper-toast>
 
-        <div class="my-input">
-            <paper-input label="Datum absent" autofocus type="datetime-local" value="{{absent_datum}}" id="absent_datum"></paper-input>
+        <div class="block-row">
+            <div class="half-block">
+                <h2>Absent melden</h2>
+                <div class="my-input">
+                    <paper-input label="Datum absent" autofocus type="datetime-local" value="{{a_absent_datum}}"
+                                 id="a_absent_datum"></paper-input>
+                </div>
+                <div class="my-input">
+                    <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate" id="undefined_date">
+                        Onbepaald
+                    </paper-checkbox>
+                </div>
+                <div class="my-input">
+                    <paper-input label="Datum present" autofocus type="datetime-local" value="{{a_present_datum}}"
+                                 id="a_present_datum"></paper-input>
+                </div>
+                <div class="my-input">
+                    <paper-button class="green" raised on-click="submitAbsent">Verzenden</paper-button>
+                </div>
+            </div>
+            <div class="half-block">
+                <h2>Present melden</h2>
+                <div class="my-input">
+                    <paper-input label="Selecteer datum" autofocus type="datetime-local" value="{{b_present_datum}}" id="b_present_datum"></paper-input>
+                </div>
+                <div class="my-input">
+                    <paper-button class="green" raised on-click="submitPresent">Verzenden</paper-button>
+                </div>
+            </div>
         </div>
-        <div class="my-input">
-            <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate" id="undefined_date">Onbepaald</paper-checkbox>
-        </div>
-        <div class="my-input">
-            <paper-input label="Datum present" autofocus type="datetime-local" value="{{present_datum}}"
-                         id="present_datum"></paper-input>
-        </div>
-        <div class="my-input">
-            <paper-button class="green" raised on-click="submit">Verzenden</paper-button>
-        </div>
+
 
         <iron-ajax
                 id="ajax_absent_melden"
                 method="POST"
                 url="/absent_melden"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_present_melden"
+                method="POST"
+                url="/present_melden"
                 handle-as="json"
                 on-response="_response_handler">
         </iron-ajax>
@@ -69,7 +105,7 @@
              xxxx  public               : two way external databinding {{xxxx}} - notify nodig
              */
             Polymer({
-                is: 'my-absentmelden',
+                is: 'my-absentie',
 
                 properties: {
                     _c_studenten: {
@@ -89,11 +125,15 @@
                          regel in de functie dat er niets gebeurd
                          als c_visible false is */
                     },
-                    absent_datum: {
+                    a_absent_datum: {
                         type: Date,
                         notify: true,
                     },
-                    present_datum: {
+                    a_present_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    b_present_datum: {
                         type: Date,
                         notify: true,
                     },
@@ -117,37 +157,48 @@
                 },
 
                 changeUndefinedDate: function (event) {
-                    this.$.present_datum.disabled = event.target.checked;
+                    this.$.a_present_datum.disabled = event.target.checked;
                 },
 
                 ready: function () {
-                    this.absent_datum = new Date().toISOString().substring(0, 16);
+                    this.a_absent_datum = new Date().toISOString().substring(0, 16);
+                    this.b_present_datum = new Date().toISOString().substring(0, 16);
+                    this.$.a_present_datum.disabled = this.$.undefined_date.checked;
                 },
 
-                submit: function () {
+                submitAbsent: function () {
                     this.$.ajax_absent_melden.contentType = "application/json";
                     this.$.ajax_absent_melden.body = {
                         "username": this.c_username,
-                        "absent_datum": Date.parse(this.$.absent_datum.value),
-                        "present_datum": Date.parse(this.$.present_datum.value),
+                        "absent_datum": Date.parse(this.$.a_absent_datum.value),
+                        "present_datum": Date.parse(this.$.a_present_datum.value),
                         "undefined_date": this.$.undefined_date.checked
                     };
                     this.$.ajax_absent_melden.generateRequest();
                 },
+                submitPresent: function (){
+                    this.$.ajax_present_melden.contentType = "application/json";
+                    this.$.ajax_present_melden.body = {
+                        "username": this.c_username,
+                        "present_datum": Date.parse(this.$.b_present_datum.value)
+                    };
+                    this.$.ajax_present_melden.generateRequest();
+                },
 
                 _response_handler: function (request) {
-                    if(request.detail.response.success == false) {
-                        this.error_toast = request.detail.response.message;
-                    } else {
-                        this.error_toast = "Je bent absent gemeld!";
+                    if (request.detail.response.success === true) {
+
                     }
+                    this.error_toast = request.detail.response.message;
                     var lToast = this.$.toast_message;
-                    lToast.toggle();
+                    lToast.close();
+                    lToast.open();
+
                 },
 
                 _toast_clicked: function (e) {
                     var lToast = this.$.toast_message;
-                    lToast.toggle();
+                    lToast.close();
                 },
             });
         })();
