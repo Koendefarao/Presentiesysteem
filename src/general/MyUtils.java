@@ -28,4 +28,14 @@ public class MyUtils {
 
         return ret;
     }
+
+    public static Date calendarToDate(Calendar in) {
+        return new Date(in.getTimeInMillis());
+    }
+
+    public static Calendar dateToCalendar(Date in) {
+        Calendar ret = Calendar.getInstance();
+        ret.setTime(in);
+        return ret;
+    }
 }

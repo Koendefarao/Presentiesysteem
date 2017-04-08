@@ -1,15 +1,13 @@
 package controller;
 
+import general.ChartUtils;
 import model.PrIS;
 import model.persoon.AbsentieOpname;
 import model.persoon.Les;
 import model.persoon.Student;
-import model.persoon.WeekelijkseLes;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by EgorDm on 07-Apr-2017.
@@ -26,10 +24,11 @@ public class UnitTests {
         student.setAbsent(new AbsentieOpname(format.parse(absS), format.parse(absE)));
         ArrayList<Les> lessen = student.getGemisteLessen(database, format.parse(absS), format.parse(till));
 
-        for(Les les : lessen) {
+        System.out.println(ChartUtils.chartAbsentiesByMonth(lessen).build().toString());
+        /*for(Les les : lessen) {
             System.out.println(les.getNaam());
             System.out.println(format.format(new Date(les.getDatumStart().getTimeInMillis())));
             System.out.println(format.format(new Date(les.getDatumEind().getTimeInMillis())));
-        }
+        }*/
     }
 }

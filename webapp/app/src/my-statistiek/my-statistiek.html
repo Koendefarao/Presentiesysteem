@@ -22,6 +22,13 @@
 
         </style>
 
+        <google-chart
+                id="my_chart"
+                type='bar'
+                options='{"title": "Absenties"}'
+                cols='[{"label":"Maand", "type":"string"}, {"label":"Absenties", "type":"number"}]'
+                rows="[[cart_data]]">
+        </google-chart>
     </template>
 
     <script>
@@ -54,17 +61,16 @@
                          regel in de functie dat er niets gebeurd
                          als c_visible false is */
                     },
+                    cart_data: {
+                        type: Array,
+                        value: []
+                    }
 
 
                 },
                 ready: function () {
-
+                    this.cart_data = [["Jan", 31],["Feb", 28],["Mar", 31]];
                 },
-
-
-
-
-
             });
 
         })();
