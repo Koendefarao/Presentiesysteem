@@ -29,10 +29,12 @@ public class StatistiekController implements Handler {
     public void handle(Conversation conversation) {
         try {
             if (conversation.getRequestedURI().startsWith("/student_chart_by_month")) {
-                studentChartByMonth(conversation);
+                studentChartByMonthPercentage(conversation);
+                //studentChartByMonth(conversation);
             }
             if (conversation.getRequestedURI().startsWith("/docent_chart_klas_by_month")) {
-                docentChartKlasByMonth(conversation);
+                //docentChartKlasByMonth(conversation);
+                docentChartKlasByMonthPercentage(conversation);
             }
             if (conversation.getRequestedURI().startsWith("/get_klassen")) {
                 getKlassen(conversation);
@@ -59,6 +61,25 @@ public class StatistiekController implements Handler {
                         MyUtils.dateToCalendar(till)).build().toString());
     }
 
+    public void studentChartByMonthPercentage(Conversation conversation) throws Exception {
+        JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
+        String username = input.getString("username");
+        Date from = MyUtils.getDateFromMillis(input.getJsonNumber("from").longValue());
+        Date till = MyUtils.getDateFromMillis(input.getJsonNumber("till").longValue());
+
+        Student student = informatieSysteem.getStudent(username);
+        if (student == null) throw new Exception("Student niet gevonden!");
+
+        //System.out.println(student.getGemisteLessen(informatieSysteem, from, till).size());
+        //System.out.println(student.getLessen(informatieSysteem, from, till).size());
+        conversation.sendJSONMessage(
+                ChartUtils.chartAbsentiesByMonthInPrecent(
+                        student.getGemisteLessen(informatieSysteem, from, till),
+                        student.getLessen(informatieSysteem, from, till),
+                        MyUtils.dateToCalendar(from),
+                        MyUtils.dateToCalendar(till)).build().toString());
+    }
+
     public void getKlassen(Conversation conversation) {
         JsonArrayBuilder ret  = Json.createArrayBuilder();
         for(Klas klas : informatieSysteem.getKlassen()) {
@@ -79,6 +100,24 @@ public class StatistiekController implements Handler {
         conversation.sendJSONMessage(
                 ChartUtils.chartAbsentiesByMonth(
                         klas.getGemisteLessen(informatieSysteem, from, till),
+                        MyUtils.dateToCalendar(from),
+                        MyUtils.dateToCalendar(till)).build().toString());
+    }
+
+
+    public void docentChartKlasByMonthPercentage(Conversation conversation) throws Exception {
+        JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
+        String klasCode = input.getString("klas");
+        Date from = MyUtils.getDateFromMillis(input.getJsonNumber("from").longValue());
+        Date till = MyUtils.getDateFromMillis(input.getJsonNumber("till").longValue());
+
+        Klas klas = informatieSysteem.getKlas(klasCode);
+        if (klas == null) throw new Exception("Klas niet gevonden!");
+
+        conversation.sendJSONMessage(
+                ChartUtils.chartAbsentiesByMonthInPrecent(
+                        klas.getGemisteLessen(informatieSysteem, from, till),
+                        klas.getLessen(informatieSysteem, from, till),
                         MyUtils.dateToCalendar(from),
                         MyUtils.dateToCalendar(till)).build().toString());
     }

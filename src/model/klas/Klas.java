@@ -52,4 +52,12 @@ public class Klas {
 		}
 		return ret;
 	}
+
+	public ArrayList<Les> getLessen(PrIS informatieSysteem, Date from, Date till) {
+		ArrayList<Les> ret = new ArrayList<>();
+		for(Student student : deStudenten) {
+			ret.addAll(student.getLessen(informatieSysteem, from, till));
+		}
+		return ret;
+	}
 }

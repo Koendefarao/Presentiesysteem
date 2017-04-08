@@ -52,6 +52,40 @@ public class ChartUtils {
                 .add("rows", rows);
     }
 
+    public static JsonObjectBuilder chartAbsentiesByMonthInPrecent(ArrayList<Les> lesAbsenties, ArrayList<Les> lesTotaal, Calendar from, Calendar till) {
+        lesAbsenties.sort(monthComparator);
+        JsonArrayBuilder rows = Json.createArrayBuilder();
+        int monthPresenties = 0;
+        int monthAbsenties = 0;
+        Calendar currMonth = (Calendar) from.clone();
+        while (currMonth.get(Calendar.MONTH) <= till.get(Calendar.MONTH) || currMonth.before(till)) {
+            for (Les absentie : lesAbsenties) {
+                if (absentie.getDatumStart().get(Calendar.MONTH) == currMonth.get(Calendar.MONTH)
+                        && absentie.getDatumStart().get(Calendar.YEAR) == currMonth.get(Calendar.YEAR)) {
+                    monthAbsenties++;
+                }
+            }
+            for (Les les : lesTotaal) {
+                if (les.getDatumStart().get(Calendar.MONTH) == currMonth.get(Calendar.MONTH)
+                        && les.getDatumStart().get(Calendar.YEAR) == currMonth.get(Calendar.YEAR)) {
+                    monthPresenties++;
+                }
+            }
+            double ratio = 0;
+            if(monthPresenties > 0) {
+                ratio = (double)(monthAbsenties)/ (double) monthPresenties;
+            }
+            rows.add(Json.createArrayBuilder()
+                    .add(monthFormat.format(MyUtils.calendarToDate(currMonth)))
+                    .add(ratio * 100));
+            currMonth.add(Calendar.MONTH, 1);
+            monthPresenties = monthAbsenties = 0;
+        }
+        return Json.createObjectBuilder()
+                .add("columns", createColumns("Maand", "string", "Absenties in %", "number"))
+                .add("rows", rows);
+    }
+
     public static JsonArrayBuilder createColumns(String x, String xType, String y, String yType) {
         return Json.createArrayBuilder()
                 .add(Json.createObjectBuilder().add("label", x).add("type", xType))

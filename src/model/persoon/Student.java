@@ -1,6 +1,7 @@
 //checked
 package model.persoon;
 
+import general.MyUtils;
 import model.PrIS;
 
 import java.util.ArrayList;
@@ -101,7 +102,10 @@ public class Student extends Persoon {
         ArrayList<WeekelijkseLes> lessen = database.getMyLessen(getGebruikersnaam());
         for(AbsentieOpname opname : toenAbsenties) {
             Calendar startAbs = Calendar.getInstance();
-            startAbs.setTime(opname.getStartDatum());
+            if(opname.getStartDatum().before(from))
+                startAbs.setTime(from);
+            else
+                startAbs.setTime(opname.getStartDatum());
 
             Calendar eindAbs = Calendar.getInstance();
             if(opname.getEindDatum() == null)
@@ -109,15 +113,27 @@ public class Student extends Persoon {
             else
                 eindAbs.setTime(opname.getEindDatum());
 
-            for(WeekelijkseLes les : lessen) {
-                Calendar startAbsTemp = (Calendar) startAbs.clone();
-                while (les.getNextStartFrom(startAbsTemp).before(eindAbs)) {
-                    ret.add(new Les(les.getNextStartFrom(startAbsTemp), les.getNextEindFrom(startAbsTemp), les));
-                    startAbsTemp = (Calendar) startAbsTemp.clone();
-                    startAbsTemp.add(Calendar.DAY_OF_WEEK, 7);
-                }
+            ret.addAll(getLessen(database, MyUtils.calendarToDate(startAbs), MyUtils.calendarToDate(eindAbs)));
+        }
+        return ret;
+    }
+
+    public ArrayList<Les> getLessen(PrIS database, Date from, Date till) {
+        Calendar fromCalendar = MyUtils.dateToCalendar(from);
+        Calendar tillCalendar = MyUtils.dateToCalendar(till);
+
+        ArrayList<Les> ret = new ArrayList<>();
+        ArrayList<WeekelijkseLes> lessen = database.getMyLessen(getGebruikersnaam());
+        for (WeekelijkseLes les : lessen) {
+            Calendar startDate = (Calendar) fromCalendar.clone();
+            while (les.getNextStartFrom(startDate).before(tillCalendar)) {
+                ret.add(new Les(les.getNextStartFrom(startDate), les.getNextEindFrom(startDate), les));
+                startDate = (Calendar) startDate.clone();
+                startDate.add(Calendar.DAY_OF_WEEK, 7);
             }
         }
         return ret;
     }
+
+
 }
