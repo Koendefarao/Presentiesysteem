@@ -67,7 +67,19 @@ public class StatistiekController implements Handler {
         conversation.sendJSONMessage(ret.build().toString());
     }
 
-    public void docentChartKlasByMonth(Conversation conversation) {
+    public void docentChartKlasByMonth(Conversation conversation) throws Exception {
+        JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
+        String klasCode = input.getString("klas");
+        Date from = MyUtils.getDateFromMillis(input.getJsonNumber("from").longValue());
+        Date till = MyUtils.getDateFromMillis(input.getJsonNumber("till").longValue());
 
+        Klas klas = informatieSysteem.getKlas(klasCode);
+        if (klas == null) throw new Exception("Klas niet gevonden!");
+
+        conversation.sendJSONMessage(
+                ChartUtils.chartAbsentiesByMonth(
+                        klas.getGemisteLessen(informatieSysteem, from, till),
+                        MyUtils.dateToCalendar(from),
+                        MyUtils.dateToCalendar(till)).build().toString());
     }
 }

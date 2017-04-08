@@ -1,7 +1,10 @@
 package model.klas;
 
 import java.util.ArrayList;
+import java.util.Date;
 
+import model.PrIS;
+import model.persoon.Les;
 import model.persoon.Student;
 
 public class Klas {
@@ -42,4 +45,11 @@ public class Klas {
 		}
 	}
 
+	public ArrayList<Les> getGemisteLessen(PrIS informatieSysteem, Date from, Date till) {
+		ArrayList<Les> ret = new ArrayList<>();
+		for(Student student : deStudenten) {
+			ret.addAll(student.getGemisteLessen(informatieSysteem, from, till));
+		}
+		return ret;
+	}
 }

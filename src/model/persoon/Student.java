@@ -91,7 +91,6 @@ public class Student extends Persoon {
     public ArrayList<Les> getGemisteLessen(PrIS database, Date from, Date till) {
         ArrayList<Les> ret = new ArrayList<>();
         ArrayList<AbsentieOpname> toenAbsenties = new ArrayList<>();
-        System.out.println(from.getTime());
         for(AbsentieOpname opname : absenties) {
             if((opname.getEindDatum() == null || opname.getEindDatum().after(from)) && opname.getStartDatum().before(till))
                 toenAbsenties.add(opname);
