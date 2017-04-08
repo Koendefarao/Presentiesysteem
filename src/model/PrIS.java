@@ -345,4 +345,8 @@ public class PrIS {
         }
         return ret;
     }
+
+    public ArrayList<Klas> getKlassen() {
+        return deKlassen;
+    }
 }

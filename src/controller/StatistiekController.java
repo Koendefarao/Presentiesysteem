@@ -4,10 +4,13 @@ import general.ChartUtils;
 import general.JsonUtils;
 import general.MyUtils;
 import model.PrIS;
+import model.klas.Klas;
 import model.persoon.Student;
 import server.Conversation;
 import server.Handler;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import java.util.Date;
 
@@ -27,6 +30,12 @@ public class StatistiekController implements Handler {
         try {
             if (conversation.getRequestedURI().startsWith("/student_chart_by_month")) {
                 studentChartByMonth(conversation);
+            }
+            if (conversation.getRequestedURI().startsWith("/docent_chart_klas_by_month")) {
+                docentChartKlasByMonth(conversation);
+            }
+            if (conversation.getRequestedURI().startsWith("/get_klassen")) {
+                getKlassen(conversation);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,5 +57,17 @@ public class StatistiekController implements Handler {
                         student.getGemisteLessen(informatieSysteem, from, till),
                         MyUtils.dateToCalendar(from),
                         MyUtils.dateToCalendar(till)).build().toString());
+    }
+
+    public void getKlassen(Conversation conversation) {
+        JsonArrayBuilder ret  = Json.createArrayBuilder();
+        for(Klas klas : informatieSysteem.getKlassen()) {
+            ret.add(klas.getKlasCode());
+        }
+        conversation.sendJSONMessage(ret.build().toString());
+    }
+
+    public void docentChartKlasByMonth(Conversation conversation) {
+
     }
 }

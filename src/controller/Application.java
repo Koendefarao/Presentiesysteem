@@ -49,6 +49,9 @@ public class Application {
 
         //Statistiek
         server.registerHandler("/student_chart_by_month", statistiekController);
+        server.registerHandler("/docent_chart_klas_by_month", statistiekController);
+        server.registerHandler("/get_klassen", statistiekController);
+
 
         server.start();
     }

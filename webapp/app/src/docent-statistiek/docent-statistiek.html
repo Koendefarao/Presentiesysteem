@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="my-input">
-                <paper-dropdown-input label="Klas" items='{{klassen}}'></paper-dropdown-input>
+                <paper-dropdown-input id="klassen" label="Klas" items='{{klassen}}'></paper-dropdown-input>
             </div>
             <div class="my-input">
                 <paper-button class="green" raised on-click="refresh">Verversen</paper-button>
@@ -83,11 +83,18 @@
         </google-chart>
 
         <iron-ajax
-                id="ajax_student_chart_by_month"
+                id="ajax_docent_chart_klas_by_month"
                 method="POST"
-                url="/student_chart_by_month"
+                url="/docent_chart_klas_by_month"
                 handle-as="json"
                 on-response="_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_klassen"
+                method="POST"
+                url="/get_klassen"
+                handle-as="json"
+                on-response="_klassen_response_handler">
         </iron-ajax>
     </template>
 
@@ -146,9 +153,6 @@
                     klassen: {
                         type: Array,
                         value: ['Klas 1', 'Klas 2']
-                    },
-                    klas: {
-                        type: String
                     }
 
                 },
@@ -163,26 +167,42 @@
                     this.till = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() + 1 + 1)).slice(-2);
                 },
                 refresh: function () {
-                    this.$.ajax_student_chart_by_month.contentType = "application/json";
-                    //console.log(this.c_username);
-                    this.$.ajax_student_chart_by_month.body = {
-                        "username": this.c_username,
-                        "from": Date.parse(this.$.from.value),
-                        "till": Date.parse(this.$.till.value)
-                    };
-                    this.$.ajax_student_chart_by_month.generateRequest();
+                    this.$.ajax_klassen.generateRequest();
+                    this.$.ajax_docent_chart_klas_by_month.contentType = "application/json";
+                    if(this.$.klassen.selectedItemLabel !== undefined) {
+                        this.$.ajax_docent_chart_klas_by_month.body = {
+                            "klas": this.$.klassen.selectedItemLabel,
+                            "from": Date.parse(this.$.from.value),
+                            "till": Date.parse(this.$.till.value)
+                        };
+                        this.$.ajax_docent_chart_klas_by_month.generateRequest();
+                    }
                 },
+
                 _response_handler: function (request) {
                     if (request.detail.response.success === false) {
                         this.error_toast = request.detail.response.message;
                         var lToast = this.$.toast_message;
                         lToast.close();
                         lToast.open();
+                        return;
                     }
 
                     this.chart_columns = request.detail.response.columns;
                     this.chart_rows = request.detail.response.rows;
 
+                },
+
+                _klassen_response_handler: function (request) {
+                    if (request.detail.response.success === false) {
+                        this.error_toast = request.detail.response.message;
+                        var lToast = this.$.toast_message;
+                        lToast.close();
+                        lToast.open();
+                        return;
+                    }
+
+                    this.klassen = request.detail.response;
                 },
 
                 _toast_clicked: function (e) {
