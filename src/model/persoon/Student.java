@@ -67,7 +67,9 @@ public class Student extends Persoon {
     public void setAbsent(AbsentieOpname absentie) throws Exception {
         for (AbsentieOpname abs : absenties) {
             if (abs.isDateWithin(absentie.getStartDatum())
-                    || abs.isDateWithin(absentie.getEindDatum())) {
+                    || abs.isDateWithin(absentie.getEindDatum())
+                    || absentie.isDateWithin(abs.getStartDatum())
+                    || absentie.isDateWithin(abs.getEindDatum())) {
                 abs.merge(absentie);
                 return;
             }
@@ -89,15 +91,14 @@ public class Student extends Persoon {
     public ArrayList<Les> getGemisteLessen(PrIS database, Date from, Date till) {
         ArrayList<Les> ret = new ArrayList<>();
         ArrayList<AbsentieOpname> toenAbsenties = new ArrayList<>();
+        System.out.println(from.getTime());
         for(AbsentieOpname opname : absenties) {
-            if((opname.getStartDatum().after(from) || opname.getStartDatum().equals(from)) && opname.getStartDatum().before(till))
+            if((opname.getEindDatum() == null || opname.getEindDatum().after(from)) && opname.getStartDatum().before(till))
                 toenAbsenties.add(opname);
         }
-        System.out.println("test1");
         if(toenAbsenties.isEmpty()) return ret;
 
         //Voor overzicht he
-        System.out.println("test2");
         ArrayList<WeekelijkseLes> lessen = database.getMyLessen(getGebruikersnaam());
         for(AbsentieOpname opname : toenAbsenties) {
             Calendar startAbs = Calendar.getInstance();

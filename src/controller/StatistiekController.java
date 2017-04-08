@@ -44,6 +44,9 @@ public class StatistiekController implements Handler {
         if (student == null) throw new Exception("Student niet gevonden!");
 
         conversation.sendJSONMessage(
-                ChartUtils.chartAbsentiesByMonth(student.getGemisteLessen(informatieSysteem, from, till)).build().toString());
+                ChartUtils.chartAbsentiesByMonth(
+                        student.getGemisteLessen(informatieSysteem, from, till),
+                        MyUtils.dateToCalendar(from),
+                        MyUtils.dateToCalendar(till)).build().toString());
     }
 }

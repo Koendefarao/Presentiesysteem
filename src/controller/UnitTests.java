@@ -1,6 +1,7 @@
 package controller;
 
 import general.ChartUtils;
+import general.MyUtils;
 import model.PrIS;
 import model.persoon.AbsentieOpname;
 import model.persoon.Les;
@@ -19,12 +20,12 @@ public class UnitTests {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String absS = "2017-03-07 00:00";
         String absE = "2017-03-20 16:00";
-        String till = "2017-04-20 00:00";
+        String till = "2017-09-20 00:00";
 
         student.setAbsent(new AbsentieOpname(format.parse(absS), format.parse(absE)));
         ArrayList<Les> lessen = student.getGemisteLessen(database, format.parse(absS), format.parse(till));
 
-        System.out.println(ChartUtils.chartAbsentiesByMonth(lessen).build().toString());
+        System.out.println(ChartUtils.chartAbsentiesByMonth(lessen, MyUtils.dateToCalendar(format.parse(absS)), MyUtils.dateToCalendar(format.parse(till))).build().toString());
         /*for(Les les : lessen) {
             System.out.println(les.getNaam());
             System.out.println(format.format(new Date(les.getDatumStart().getTimeInMillis())));

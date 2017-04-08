@@ -6,14 +6,15 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
 
 /**
  * Created by EgorDm on 08-Apr-2017.
  */
 public class ChartUtils {
 
-    private static final JsonArrayBuilder monthColumns = createColumns("Maand", "string", "Absenties", "number");
     private static final SimpleDateFormat monthFormat = new SimpleDateFormat("MMM yy");
     private static final Comparator<Les> monthComparator = (o1, o2) -> {
         int month1 = o1.getDatumStart().get(Calendar.MONTH);
@@ -27,31 +28,27 @@ public class ChartUtils {
         else return 1;
     };
 
-    public static JsonObjectBuilder chartAbsentiesByMonth(ArrayList<Les> lesAbsenties) {
+    public static JsonObjectBuilder chartAbsentiesByMonth(ArrayList<Les> lesAbsenties, Calendar from, Calendar till) {
         lesAbsenties.sort(monthComparator);
 
         JsonArrayBuilder rows = Json.createArrayBuilder();
         int monthTotal = 0;
-        Calendar currMonth = null;
-        for (Les absentie : lesAbsenties) {
-            if (currMonth == null || absentie.getDatumStart().get(Calendar.MONTH) != currMonth.get(Calendar.MONTH)) {
-                if (currMonth != null) {
-                    rows.add(Json.createArrayBuilder()
-                            .add(monthFormat.format(MyUtils.calendarToDate(currMonth)))
-                            .add(monthTotal));
+        Calendar currMonth = (Calendar) from.clone();
+        while (currMonth.get(Calendar.MONTH) <= till.get(Calendar.MONTH) || currMonth.before(till)) {
+            for (Les absentie : lesAbsenties) {
+                if (absentie.getDatumStart().get(Calendar.MONTH) == currMonth.get(Calendar.MONTH)
+                        && absentie.getDatumStart().get(Calendar.YEAR) == currMonth.get(Calendar.YEAR)) {
+                    monthTotal++;
                 }
-                monthTotal = 0;
-                currMonth = absentie.getDatumStart();
             }
-            monthTotal++;
-        }
-        if (currMonth != null) {
             rows.add(Json.createArrayBuilder()
                     .add(monthFormat.format(MyUtils.calendarToDate(currMonth)))
                     .add(monthTotal));
+            currMonth.add(Calendar.MONTH, 1);
+            monthTotal = 0;
         }
         return Json.createObjectBuilder()
-                .add("columns", monthColumns)
+                .add("columns", createColumns("Maand", "string", "Absenties", "number"))
                 .add("rows", rows);
     }
 

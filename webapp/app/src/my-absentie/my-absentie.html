@@ -211,8 +211,6 @@
                     for (var j = 0; j < request.detail.response.length; j++) {
                         var absentie = request.detail.response[j];
 
-                        console.log(absentie);
-
                         var absentieElement = document.createElement('absentie-entity');
                         absentieElement.setAttribute('c_username', this.c_username);
                         absentieElement.setAttribute('absent_datum', new Date(absentie.start_datum).toISOString().substring(0, 16));
