@@ -1,0 +1,196 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="docent-statistiek">
+    <template>
+        <style>
+            :root {
+                --paper-input-container-focus-color: #1a9fd9;
+            }
+
+            :host {
+                display: block;
+            }
+
+            .half-block {
+                width: 50%;
+                float: left;
+                padding-right: 16px;
+                box-sizing: border-box;
+            }
+
+            .green {
+                background: forestgreen;
+                color: white;
+            }
+
+            .my-input {
+                margin: 16px 0;
+            }
+
+            .block-row {
+                overflow: hidden;
+            }
+
+            #my_chart {
+                width: 100%;
+                height: 500px;
+            }
+
+        </style>
+
+        <paper-toast
+                id="toast_message"
+                duration="0"
+                text="{{error_toast}}">
+            <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
+        </paper-toast>
+
+        <div class="block-row">
+            <div class="half-block">
+                <div class="my-input">
+                    <paper-input label="Vanaf" autofocus type="month" value="{{from}}"
+                                 id="from"></paper-input>
+                </div>
+            </div>
+            <div class="half-block">
+                <div class="my-input">
+                    <paper-input label="Tot" autofocus type="month" value="{{till}}"
+                                 id="till"></paper-input>
+                </div>
+            </div>
+            <div class="my-input">
+                <paper-dropdown-input label="Klas" items='{{klassen}}'></paper-dropdown-input>
+            </div>
+            <div class="my-input">
+                <paper-button class="green" raised on-click="refresh">Verversen</paper-button>
+            </div>
+        </div>
+
+        <google-chart
+                id="my_chart"
+                type='bar'
+                options='{"title": "Absenties"}'
+                cols='[[chart_columns]]'
+                rows="[[chart_rows]]">
+        </google-chart>
+
+        <iron-ajax
+                id="ajax_student_chart_by_month"
+                method="POST"
+                url="/student_chart_by_month"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
+    </template>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* _xxxx private              : geen external data binding      - geen notify
+             _c_xx private constant     : geen external binding, constant - geen notify
+             c_xx  public constant      : one way external databinding [[c_xx]] - geen notify nodig
+             xxxx  public               : two way external databinding {{xxxx}} - notify nodig
+             */
+            Polymer({
+                is: 'docent-statistiek',
+                properties: {
+                    _c_studenten: {
+                        type: Array, /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
+                         array is constant groepnr is changable */
+                    },
+                    c_rol: {
+                        type: String,
+                    },
+                    c_username: {
+                        type: String,
+                    },
+                    c_visible: {
+                        type: Boolean, /* true when element is the active visible item */
+                        value: false,
+                        observer: '_initializing', /* wordt ook aangeroepen bijwisseling van true naar false.
+                         regel in de functie dat er niets gebeurd
+                         als c_visible false is */
+                    },
+                    chart_columns: {
+                        type: Array,
+                        value: [
+                            {
+                                "label": "Maand",
+                                "type": "string"
+                            },
+                            {
+                                "label": "Absenties",
+                                "type": "number"
+                            }
+                        ]
+                    },
+                    chart_rows: {
+                        type: Array,
+                        value: []
+                    },
+                    from: {
+                        type: String,
+                    },
+                    till: {
+                        type: String,
+                    },
+                    klassen: {
+                        type: Array,
+                        value: ['Klas 1', 'Klas 2']
+                    },
+                    klas: {
+                        type: String
+                    }
+
+                },
+                _initializing: function () {
+                    if (this.c_visible) {
+                        this.ready();
+                        this.refresh();
+                    }
+                },
+                ready: function () {
+                    this.from = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() - 1 + 1)).slice(-2);
+                    this.till = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() + 1 + 1)).slice(-2);
+                },
+                refresh: function () {
+                    this.$.ajax_student_chart_by_month.contentType = "application/json";
+                    //console.log(this.c_username);
+                    this.$.ajax_student_chart_by_month.body = {
+                        "username": this.c_username,
+                        "from": Date.parse(this.$.from.value),
+                        "till": Date.parse(this.$.till.value)
+                    };
+                    this.$.ajax_student_chart_by_month.generateRequest();
+                },
+                _response_handler: function (request) {
+                    if (request.detail.response.success === false) {
+                        this.error_toast = request.detail.response.message;
+                        var lToast = this.$.toast_message;
+                        lToast.close();
+                        lToast.open();
+                    }
+
+                    this.chart_columns = request.detail.response.columns;
+                    this.chart_rows = request.detail.response.rows;
+
+                },
+
+                _toast_clicked: function (e) {
+                    var lToast = this.$.toast_message;
+                    lToast.close();
+                },
+            });
+
+        })();
+    </script>
+</dom-module>
