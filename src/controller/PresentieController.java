@@ -49,6 +49,9 @@ public class PresentieController implements Handler {
             absentTot = MyUtils.getDateFromMillis(input.getJsonNumber("present_datum").longValue());
         }
 
+        //Voor testen commenten
+        //if(absentVan.before(new Date())) throw new Exception("You need a DeLorean for that");
+
         Student student = informatieSysteem.getStudent(username);
         if (student == null) throw new Exception("Student niet gevonden!");
 
@@ -61,6 +64,9 @@ public class PresentieController implements Handler {
         JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
         String username = input.getString("username");
         Date presentDate = MyUtils.getDateFromMillis(input.getJsonNumber("present_datum").longValue());
+
+        //Voor testen commenten
+        //if(presentDate.before(new Date())) throw new Exception("You need a DeLorean for that");
 
         Student student = informatieSysteem.getStudent(username);
         if (student == null) throw new Exception("Student niet gevonden!");
