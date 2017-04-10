@@ -39,6 +39,9 @@ public class StatistiekController implements Handler {
             if (conversation.getRequestedURI().startsWith("/get_klassen")) {
                 getKlassen(conversation);
             }
+            if (conversation.getRequestedURI().startsWith("/get_studenten")) {
+                getStudenten(conversation);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             conversation.sendJSONMessage(JsonUtils.getErrorMessage(e.getMessage()));
@@ -84,6 +87,20 @@ public class StatistiekController implements Handler {
         JsonArrayBuilder ret  = Json.createArrayBuilder();
         for(Klas klas : informatieSysteem.getKlassen()) {
             ret.add(klas.getKlasCode());
+        }
+        conversation.sendJSONMessage(ret.build().toString());
+    }
+
+    public void getStudenten(Conversation conversation) throws Exception {
+        JsonObject input = (JsonObject) conversation.getRequestBodyAsJSON();
+        String klasCode = input.getString("klas");
+
+        Klas klas = informatieSysteem.getKlas(klasCode);
+        if (klas == null) throw new Exception("Klas niet gevonden!");
+
+        JsonArrayBuilder ret = Json.createArrayBuilder();
+        for(Student student : klas.getStudenten()) {
+            ret.add(student.serialize());
         }
         conversation.sendJSONMessage(ret.build().toString());
     }

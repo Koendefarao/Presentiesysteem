@@ -4,6 +4,8 @@ package model.persoon;
 import general.MyUtils;
 import model.PrIS;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -135,5 +137,10 @@ public class Student extends Persoon {
         return ret;
     }
 
-
+    @Override
+    public JsonObjectBuilder serialize() {
+        return  Json.createObjectBuilder()
+                .add("name", getVoornaam() + " " + getVolledigeAchternaam())
+                .add("username", getGebruikersnaam());
+    }
 }

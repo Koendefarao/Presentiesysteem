@@ -277,6 +277,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-material>
                 </section>
 
+                <section name="docent_presentie"
+                         title="Presentie"
+                         element$="docent-presentie">
+                    <paper-material elevation="1">
+                        <!--
+                            c_visible="true" als deze section geselecteerd is.
+                            LET OP: boolean values moeten als string doorgegeven worden,
+                                    vandaar de quotes rondom de function aanroep.
+                                    De aanwezige literal waarde wordt met enkele quotes doorgegeven
+                        -->
+                        <docent-presentie
+                                c_visible="[[_are_strings_equal(_ar_page, 'docent_presentie')]]"
+                                c_rol="[[_rol]]"
+                                c_username="[[_username]]">
+                        </docent-presentie>
+                    </paper-material>
+                </section>
+
                 <!-- sections voor student -->
                 <section name="student_absentie"
                          title="Absentie"
@@ -332,23 +350,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-material>
                 </section>
 
-                <section name="docent_presentie"
-                         title="Presentie"
-                         element$="docent-presentie">
-                    <paper-material elevation="1">
-                        <!--
-                            c_visible="true" als deze section geselecteerd is.
-                            LET OP: boolean values moeten als string doorgegeven worden,
-                                    vandaar de quotes rondom de function aanroep.
-                                    De aanwezige literal waarde wordt met enkele quotes doorgegeven
-                        -->
-                        <docent-presentie
-                                c_visible="[[_are_strings_equal(_ar_page, 'docent_presentie')]]"
-                                c_rol="[[_rol]]"
-                                c_username="[[_username]]">
-                        </docent-presentie>
-                    </paper-material>
-                </section>
 
                 <section name="student_details" title="STUDENT DETAILS">
                     <paper-material elevation="1">

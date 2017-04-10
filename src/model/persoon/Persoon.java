@@ -1,6 +1,10 @@
 package model.persoon;
 
-public abstract class Persoon {
+import model.BasisModel;
+
+import javax.json.JsonObjectBuilder;
+
+public abstract class Persoon extends BasisModel {
 
 	private String voornaam;
 	private String tussenvoegsel;
@@ -47,5 +51,10 @@ public abstract class Persoon {
 			lStatus = true;
 		}
 		return lStatus;
+	}
+
+	@Override
+	public JsonObjectBuilder serialize() {
+		return null;
 	}
 }
