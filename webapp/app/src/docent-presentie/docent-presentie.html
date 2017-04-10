@@ -19,6 +19,25 @@
                 display: block;
             }
 
+            .green {
+                background: forestgreen;
+                color: white;
+            }
+
+            .my-input {
+                margin: 16px 0;
+            }
+
+            .half-block {
+                width: 50%;
+                float: left;
+                padding-right: 16px;
+                box-sizing: border-box;
+            }
+
+            .block-row {
+                overflow: hidden;
+            }
         </style>
 
         <paper-toast
@@ -28,6 +47,102 @@
             <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
         </paper-toast>
 
+        <div class="block-row">
+            <div class="half-block">
+                <div class="my-input">
+                    <paper-dropdown-input id="klassen" label="Klas" items='{{klassen}}'></paper-dropdown-input>
+                </div>
+                <div class="my-input">
+                    <paper-button class="green" raised on-click="getStudenten">Klas selecteren</paper-button>
+                </div>
+            </div>
+            <div class="half-block">
+                <div class="my-input">
+                    <paper-dropdown-input id="studenten" label="Studenten" items='{{studentenSelect}}'></paper-dropdown-input>
+
+                    <div class="my-input">
+                        <paper-button class="green" raised on-click="selStudent">Student selecteren</paper-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="stageTwo" hidden$="{{stageTwoHidden}}">
+            <h2>Geselecteerde student {{student}}</h2>
+            <div class="block-row">
+                <div class="half-block">
+                    <h2>Absent melden</h2>
+                    <div class="my-input">
+                        <paper-input label="Datum absent" autofocus type="datetime-local" value="{{a_absent_datum}}"
+                                     id="a_absent_datum"></paper-input>
+                    </div>
+                    <div class="my-input">
+                        <paper-checkbox checked="{{undefined_date}}" on-change="changeUndefinedDate"
+                                        id="undefined_date">
+                            Onbepaald
+                        </paper-checkbox>
+                    </div>
+                    <div class="my-input">
+                        <paper-input label="Datum present" autofocus type="datetime-local" value="{{a_present_datum}}"
+                                     id="a_present_datum"></paper-input>
+                    </div>
+                    <div class="my-input">
+                        <paper-button class="green" raised on-click="submitAbsent">Verzenden</paper-button>
+                    </div>
+                </div>
+                <div class="half-block">
+                    <h2>Present melden</h2>
+                    <div class="my-input">
+                        <paper-input label="Selecteer datum" autofocus type="datetime-local" value="{{b_present_datum}}"
+                                     id="b_present_datum"></paper-input>
+                    </div>
+                    <div class="my-input">
+                        <paper-button class="green" raised on-click="submitPresent">Verzenden</paper-button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 32px">
+                <h2>Student absenties</h2>
+                <div id="absenties">
+
+                </div>
+            </div>
+        </div>
+
+        <iron-ajax
+                id="ajax_absent_melden"
+                method="POST"
+                url="/absent_melden"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_present_melden"
+                method="POST"
+                url="/present_melden"
+                handle-as="json"
+                on-response="_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_get_absenties_student"
+                method="POST"
+                url="/get_absenties_student"
+                handle-as="json"
+                on-response="_absentie_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_get_studenten"
+                method="POST"
+                url="/get_studenten"
+                handle-as="json"
+                on-response="_studenten_response_handler">
+        </iron-ajax>
+        <iron-ajax
+                id="ajax_klassen"
+                method="POST"
+                url="/get_klassen"
+                handle-as="json"
+                on-response="_klassen_response_handler">
+        </iron-ajax>
     </template>
 
     <script>
@@ -41,15 +156,13 @@
              */
             Polymer({
                 is: 'docent-presentie',
+
                 properties: {
                     _c_studenten: {
                         type: Array, /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
                          array is constant groepnr is changable */
                     },
                     c_rol: {
-                        type: String,
-                    },
-                    c_username: {
                         type: String,
                     },
                     c_visible: {
@@ -59,42 +172,117 @@
                          regel in de functie dat er niets gebeurd
                          als c_visible false is */
                     },
-
-                },
-                _initializing: function () {
-                    if (this.c_visible) {
-                        this.ready();
-                        this.refresh();
+                    a_absent_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    a_present_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    b_present_datum: {
+                        type: Date,
+                        notify: true,
+                    },
+                    undefined_date: {
+                        type: Boolean,
+                        value: true,
+                    },
+                    error_toast: {
+                        type: String,
+                    },
+                    klassen: {
+                        type: Array,
+                        value: ['Klas 1', 'Klas 2']
+                    },
+                    studentenSelect: {
+                        type: Array,
+                        value: ['Pietje', 'Jantje']
+                    },
+                    studenten: {
+                        type: Array,
+                        value: ['Pietje', 'Jantje']
+                    },
+                    student: {
+                        type: String,
+                    },
+                    stageTwoHidden: {
+                        type: Boolean,
+                        value: true,
                     }
                 },
-                ready: function () {
-                    this.from = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() - 1 + 1)).slice(-2);
-                    this.till = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() + 1 + 1)).slice(-2);
+
+                _initializing: function () {
+                    if (this.c_visible) {
+                        this.$.ajax_klassen.generateRequest()
+                        this.selStudent();
+                    }
                 },
-                refresh: function () {
-                    this.$.ajax_klassen.generateRequest();
-                    this.$.ajax_docent_chart_klas_by_month.contentType = "application/json";
-                    if(this.$.klassen.selectedItemLabel !== undefined) {
-                        this.$.ajax_docent_chart_klas_by_month.body = {
-                            "klas": this.$.klassen.selectedItemLabel,
-                            "from": Date.parse(this.$.from.value),
-                            "till": Date.parse(this.$.till.value)
-                        };
-                        this.$.ajax_docent_chart_klas_by_month.generateRequest();
+
+
+                changeUndefinedDate: function (event) {
+                    this.$.a_present_datum.disabled = event.target.checked;
+                },
+
+                ready: function () {
+                    this.a_absent_datum = new Date().toISOString().substring(0, 16);
+                    this.b_present_datum = new Date().toISOString().substring(0, 16);
+                    this.$.a_present_datum.disabled = this.$.undefined_date.checked;
+                },
+
+                submitAbsent: function () {
+                    this.$.ajax_absent_melden.contentType = "application/json";
+                    this.$.ajax_absent_melden.body = {
+                        "username": this.student,
+                        "absent_datum": Date.parse(this.$.a_absent_datum.value),
+                        "present_datum": Date.parse(this.$.a_present_datum.value),
+                        "undefined_date": this.$.undefined_date.checked
+                    };
+                    this.$.ajax_absent_melden.generateRequest();
+                },
+                submitPresent: function () {
+                    this.$.ajax_present_melden.contentType = "application/json";
+                    this.$.ajax_present_melden.body = {
+                        "username": this.student,
+                        "present_datum": Date.parse(this.$.b_present_datum.value)
+                    };
+                    this.$.ajax_present_melden.generateRequest();
+                },
+
+                updateAbsentieLijst: function () {
+                    this.$.ajax_get_absenties_student.contentType = "application/json";
+                    this.$.ajax_get_absenties_student.body = {
+                        "username": this.student,
+                    };
+                    this.$.ajax_get_absenties_student.generateRequest();
+                },
+
+                _absentie_response_handler: function (request) {
+                    console.log("resp");
+                    var myParent = Polymer.dom(this.$.absenties);
+                    myParent.innerHTML = "";
+                    if (request.detail.response.success == true) return; //todo catch error
+
+                    for (var j = 0; j < request.detail.response.length; j++) {
+                        var absentie = request.detail.response[j];
+
+                        var absentieElement = document.createElement('absentie-entity');
+                        absentieElement.setAttribute('c_username', this.c_username);
+                        absentieElement.setAttribute('absent_datum', new Date(absentie.start_datum).toISOString().substring(0, 16));
+                        absentieElement.setAttribute('present_datum', (absentie.eind_datum != null) ?
+                            new Date(absentie.eind_datum).toISOString().substring(0, 16) : 'Onbepaald');
+                        myParent.appendChild(absentieElement);
                     }
                 },
 
                 _response_handler: function (request) {
-                    if (request.detail.response.success === false) {
-                        this.error_toast = request.detail.response.message;
-                        var lToast = this.$.toast_message;
-                        lToast.close();
-                        lToast.open();
-                        return;
+                    if (request.detail.response.success === true) {
+                        this.updateAbsentieLijst();
                     }
-
-                    this.chart_columns = request.detail.response.columns;
-                    this.chart_rows = request.detail.response.rows;
+                    this.error_toast = request.detail.response.message;
+                    var lToast = this.$.toast_message;
+                    lToast.close();
+                    lToast.open();
 
                 },
 
@@ -106,8 +294,47 @@
                         lToast.open();
                         return;
                     }
-
                     this.klassen = request.detail.response;
+                },
+
+                getStudenten: function () {
+                    if(this.$.klassen.selectedItemLabel == undefined) return;
+                    this.$.ajax_get_studenten.contentType = "application/json";
+                    this.$.ajax_get_studenten.body = {
+                        "klas": this.$.klassen.selectedItemLabel,
+                    };
+                    this.$.ajax_get_studenten.generateRequest();
+                },
+
+                _studenten_response_handler: function (request) {
+                    if (request.detail.response.success === false) {
+                        this.error_toast = request.detail.response.message;
+                        var lToast = this.$.toast_message;
+                        lToast.close();
+                        lToast.open();
+                        return;
+                    }
+                    this.studenten = request.detail.response;
+                    this.studentenSelect = [];
+                    var studSel = [];
+
+                    for (var j = 0; j < this.studenten.length; j++) {
+                        studSel.push(this.studenten[j].name);
+                    }
+                    this.studentenSelect = studSel;
+                },
+
+                selStudent: function () {
+                    for (var j = 0; j < this.studenten.length; j++) {
+                        if(this.studenten[j].name == this.$.studenten.selectedItemLabel) {
+                            this.student = this.studenten[j].username;
+                            break;
+                        }
+                    }
+                    this.stageTwoHidden = (this.student == undefined);
+                    if(!this.stageTwoHidden) {
+                        this.updateAbsentieLijst();
+                    }
                 },
 
                 _toast_clicked: function (e) {
@@ -115,7 +342,6 @@
                     lToast.close();
                 },
             });
-
         })();
     </script>
 </dom-module>
