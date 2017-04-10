@@ -1,0 +1,121 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="docent-presentie">
+    <template>
+        <style>
+            :root {
+                --paper-input-container-focus-color: #1a9fd9;
+            }
+
+            :host {
+                display: block;
+            }
+
+        </style>
+
+        <paper-toast
+                id="toast_message"
+                duration="0"
+                text="{{error_toast}}">
+            <paper-button on-click="_toast_clicked" class="toast-button">Sluiten</paper-button>
+        </paper-toast>
+
+    </template>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* _xxxx private              : geen external data binding      - geen notify
+             _c_xx private constant     : geen external binding, constant - geen notify
+             c_xx  public constant      : one way external databinding [[c_xx]] - geen notify nodig
+             xxxx  public               : two way external databinding {{xxxx}} - notify nodig
+             */
+            Polymer({
+                is: 'docent-presentie',
+                properties: {
+                    _c_studenten: {
+                        type: Array, /* array<student-info>: student-info = {id, firstName, lastName, sameGroup}
+                         array is constant groepnr is changable */
+                    },
+                    c_rol: {
+                        type: String,
+                    },
+                    c_username: {
+                        type: String,
+                    },
+                    c_visible: {
+                        type: Boolean, /* true when element is the active visible item */
+                        value: false,
+                        observer: '_initializing', /* wordt ook aangeroepen bijwisseling van true naar false.
+                         regel in de functie dat er niets gebeurd
+                         als c_visible false is */
+                    },
+
+                },
+                _initializing: function () {
+                    if (this.c_visible) {
+                        this.ready();
+                        this.refresh();
+                    }
+                },
+                ready: function () {
+                    this.from = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() - 1 + 1)).slice(-2);
+                    this.till = new Date().getFullYear() + "-" + ("0" + ( new Date().getMonth() + 1 + 1)).slice(-2);
+                },
+                refresh: function () {
+                    this.$.ajax_klassen.generateRequest();
+                    this.$.ajax_docent_chart_klas_by_month.contentType = "application/json";
+                    if(this.$.klassen.selectedItemLabel !== undefined) {
+                        this.$.ajax_docent_chart_klas_by_month.body = {
+                            "klas": this.$.klassen.selectedItemLabel,
+                            "from": Date.parse(this.$.from.value),
+                            "till": Date.parse(this.$.till.value)
+                        };
+                        this.$.ajax_docent_chart_klas_by_month.generateRequest();
+                    }
+                },
+
+                _response_handler: function (request) {
+                    if (request.detail.response.success === false) {
+                        this.error_toast = request.detail.response.message;
+                        var lToast = this.$.toast_message;
+                        lToast.close();
+                        lToast.open();
+                        return;
+                    }
+
+                    this.chart_columns = request.detail.response.columns;
+                    this.chart_rows = request.detail.response.rows;
+
+                },
+
+                _klassen_response_handler: function (request) {
+                    if (request.detail.response.success === false) {
+                        this.error_toast = request.detail.response.message;
+                        var lToast = this.$.toast_message;
+                        lToast.close();
+                        lToast.open();
+                        return;
+                    }
+
+                    this.klassen = request.detail.response;
+                },
+
+                _toast_clicked: function (e) {
+                    var lToast = this.$.toast_message;
+                    lToast.close();
+                },
+            });
+
+        })();
+    </script>
+</dom-module>
